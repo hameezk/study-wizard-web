@@ -5,6 +5,14 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+/* Display sizes take the serif; everything else is Inter. */
+h1, h2, .display {
+  font-family: var(--font-display), 'Iowan Old Style', Georgia, serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+
 body {
   margin: 0;
   /* Explicit background: without it the page is white in dark mode. */

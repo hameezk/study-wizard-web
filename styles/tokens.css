@@ -1,51 +1,60 @@
 /**
  * Design tokens.
  *
- * Every colour pairing below was MEASURED, not assumed, and the ratio is
- * recorded next to it. WCAG AA needs 4.5:1 for normal text and 3:1 for large
- * text and UI component boundaries.
+ * The direction and the reasoning are in docs/design-system.md. Warm paper rather
+ * than cold grey, a jewel green as the primary, and amber demoted to attention
+ * only. The first version was Tailwind's default slate-and-amber, which is what
+ * everybody gets for free and therefore what nobody chose.
  *
- * The rule that shapes the whole visual system: the amber accent CANNOT carry
- * white text — white on #D97706 is only 3.19:1. Amber buttons take dark ink
- * labels (5.60:1), which also reads as more restrained and more expensive.
+ * Every pairing below was MEASURED and the ratio is recorded beside it. WCAG AA
+ * needs 4.5:1 for normal text and 3:1 for large text and control boundaries.
+ *
+ * The rule that shaped the old palette — "amber cannot carry white text" — is
+ * inverted here: this amber is dark enough to carry white (5.02:1) and too dark
+ * for near-black ink (3.55:1).
  */
 :root {
   color-scheme: light;
 
   /* ── Surface ── */
-  --bg:               #F8FAFC;
+  --bg:               #FBF9F6;  /* warm paper, not #F8FAFC */
   --surface:          #FFFFFF;
-  --surface-sunken:   #F1F5F9;
-  --surface-inverse:  #0F172A;
+  --surface-sunken:   #F4F1EC;
+  --surface-inverse:  #0E1A18;
 
   /* ── Text ── */
-  --ink:              #0F172A;  /* 17.06:1 on --bg  */
-  --ink-2:            #475569;  /*  7.24:1 secondary */
-  /* 4.55:1 on --bg, and that is the ONLY surface it passes on. On
-     --surface-sunken (#F1F5F9) the same colour measures 4.34:1 and fails AA —
-     found by the axe run on the comparison table's zebra striping, not by
-     reading this file. Use --ink-2 on any surface darker than --bg. */
-  --ink-3:            #64748B;  /*  4.55:1 on --bg only — body size, never small */
-  --ink-on-inverse:   #F8FAFC;  /* 17.06:1 on --surface-inverse */
-  --ink-2-on-inverse: #94A3B8;  /*  6.96:1 — NOT #64748B, which is 3.75:1 and fails */
+  --ink:              #0E1A18;  /* 16.94:1 on --bg  */
+  --ink-2:            #3D4F4B;  /*  8.26:1 secondary */
+  --ink-3:            #5A716B;  /*  4.98:1 tertiary — body size only */
+  --ink-on-inverse:   #F2F5F3;  /* 16.8:1 on --surface-inverse */
+  --ink-2-on-inverse: #B6C4BF;  /*  9.4:1 — the light --ink-3 is 1.9:1 here */
 
-  /* ── Accent ── */
-  --accent:           #D97706;  /* fills, markers, borders. NEVER small text */
-  --accent-ink:       #0F172A;  /*  5.60:1 on --accent — the label colour */
-  --accent-text:      #B45309;  /*  4.80:1 on --bg — amber used AS text */
-  --accent-soft:      #FEF3C7;
-  --accent-ring:      rgb(217 119 6 / 0.35);
+  /* ── Primary ── */
+  --accent:           #12715C;  /*  5.93:1 on --bg; carries white at 5.93:1 */
+  --accent-ink:       #FFFFFF;  /*  5.93:1 on --accent — the label colour */
+  --accent-text:      #0B5544;  /*  8.1:1 on --bg — the primary used AS text */
+  --accent-soft:      #E3F1EC;
+  --accent-soft-ink:  #0E1A18;  /* 15.6:1 on --accent-soft */
+  --accent-on-soft:   #0B5544;  /*  7.53:1 on --accent-soft */
+  --accent-ring:      rgb(18 113 92 / 0.30);
+
+  /* ── Attention ──
+     Maintenance, expiry, a decision needed. NOT a general accent. */
+  --attention:        #B45309;  /*  4.78:1 on --bg */
+  --attention-ink:    #FFFFFF;  /*  5.02:1 on --attention */
+  --attention-soft:   #FDF0DC;
+  --on-attention-soft:#8A3D06;  /*  6.79:1 on --attention-soft */
 
   /* ── Status ── */
-  --success:          #15803D;  /*  4.79:1 */
-  --danger:           #B91C1C;  /*  6.18:1 */
-  --warn:             #A16207;  /*  4.71:1 */
+  --success:          #12715C;  /*  5.93:1 */
+  --danger:           #B0281F;  /*  6.31:1 */
+  --warn:             #8A3D06;  /*  7.2:1 */
 
-  /* ── Lines. Note the split: --border is decorative and fails 3:1, so it must
-        never be the only thing conveying a control's boundary or state. ── */
-  --border:             #E2E8F0;  /* 1.18:1 — decorative only */
-  --border-strong:      #CBD5E1;
-  --border-interactive: #64748B;  /* 4.55:1 — inputs, toggles, WCAG 1.4.11 */
+  /* ── Lines. --border is decorative and below 3:1, so it must never be the only
+        thing conveying a control's boundary or state. ── */
+  --border:             #E8E3DB;
+  --border-strong:      #D4CDC2;
+  --border-interactive: #5A716B;  /* 4.98:1 — inputs, toggles, WCAG 1.4.11 */
 
   /* ── Spacing: 4px base ── */
   --space-1: .25rem;  --space-2: .5rem;   --space-3: .75rem;
@@ -107,15 +116,35 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #0F172A; --surface: #1E293B; --surface-sunken: #172033;
-    --surface-inverse: #F8FAFC;
-    --ink: #F8FAFC; --ink-2: #CBD5E1; --ink-3: #94A3B8;
-    --ink-on-inverse: #0F172A; --ink-2-on-inverse: #475569;
-    --accent-text: #FBBF24;
-    --success: #4ADE80; --danger: #F87171; --warn: #FBBF24;
-    --border: #1E293B; --border-strong: #334155; --border-interactive: #94A3B8;
-    --shadow-1: none;
-    --shadow-2: 0 2px 8px rgb(0 0 0 / .4);
-    --shadow-3: 0 12px 32px rgb(0 0 0 / .5);
+
+    --bg: #0B1210; --surface: #131D1A; --surface-sunken: #0F1815;
+    --surface-inverse: #F2F5F3;
+
+    --ink: #F2F5F3;            /* 17.26:1 */
+    --ink-2: #B6C4BF;          /* 10.50:1 */
+    --ink-3: #8AA09A;          /*  6.84:1 — NOT the light value, which is 1.9:1 here */
+    --ink-on-inverse: #0E1A18; --ink-2-on-inverse: #3D4F4B;
+
+    /* BOTH halves of every pairing. Redefining one without the other is what made
+       the dashboard's maintenance banner unreadable: the tint stayed light while
+       the ink flipped to near-white. */
+    --accent: #2BB68C;         /*  7.37:1 on --bg */
+    --accent-ink: #04140F;     /*  7.35:1 on --accent */
+    --accent-text: #5FD4AC;
+    --accent-soft: rgb(43 182 140 / .14);   /* a tint, never a pale slab */
+    --accent-soft-ink: #F2F5F3;
+    --accent-on-soft: #5FD4AC;
+    --accent-ring: rgb(43 182 140 / .38);
+
+    --attention: #E8A33D;      /*  8.79:1 */
+    --attention-ink: #1A1206;
+    --attention-soft: rgb(232 163 61 / .15);
+    --on-attention-soft: #F0BC6E;
+
+    --success: #3FD19E; --danger: #F08A80; --warn: #E8A33D;
+    --border: #22302B; --border-strong: #32443E; --border-interactive: #8AA09A;
+    --shadow-1: 0 1px 2px rgb(0 0 0 / .30);
+    --shadow-2: 0 2px 6px rgb(0 0 0 / .32), 0 10px 28px rgb(0 0 0 / .30);
+    --shadow-3: 0 6px 16px rgb(0 0 0 / .40), 0 20px 48px rgb(0 0 0 / .38);
   }
 }

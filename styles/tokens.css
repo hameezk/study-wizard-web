@@ -1,0 +1,117 @@
+/**
+ * Design tokens.
+ *
+ * Every colour pairing below was MEASURED, not assumed, and the ratio is
+ * recorded next to it. WCAG AA needs 4.5:1 for normal text and 3:1 for large
+ * text and UI component boundaries.
+ *
+ * The rule that shapes the whole visual system: the amber accent CANNOT carry
+ * white text — white on #D97706 is only 3.19:1. Amber buttons take dark ink
+ * labels (5.60:1), which also reads as more restrained and more expensive.
+ */
+:root {
+  color-scheme: light;
+
+  /* ── Surface ── */
+  --bg:               #F8FAFC;
+  --surface:          #FFFFFF;
+  --surface-sunken:   #F1F5F9;
+  --surface-inverse:  #0F172A;
+
+  /* ── Text ── */
+  --ink:              #0F172A;  /* 17.06:1 on --bg  */
+  --ink-2:            #475569;  /*  7.24:1 secondary */
+  --ink-3:            #64748B;  /*  4.55:1 tertiary — body size only, never small */
+  --ink-on-inverse:   #F8FAFC;  /* 17.06:1 on --surface-inverse */
+  --ink-2-on-inverse: #94A3B8;  /*  6.96:1 — NOT #64748B, which is 3.75:1 and fails */
+
+  /* ── Accent ── */
+  --accent:           #D97706;  /* fills, markers, borders. NEVER small text */
+  --accent-ink:       #0F172A;  /*  5.60:1 on --accent — the label colour */
+  --accent-text:      #B45309;  /*  4.80:1 on --bg — amber used AS text */
+  --accent-soft:      #FEF3C7;
+  --accent-ring:      rgb(217 119 6 / 0.35);
+
+  /* ── Status ── */
+  --success:          #15803D;  /*  4.79:1 */
+  --danger:           #B91C1C;  /*  6.18:1 */
+  --warn:             #A16207;  /*  4.71:1 */
+
+  /* ── Lines. Note the split: --border is decorative and fails 3:1, so it must
+        never be the only thing conveying a control's boundary or state. ── */
+  --border:             #E2E8F0;  /* 1.18:1 — decorative only */
+  --border-strong:      #CBD5E1;
+  --border-interactive: #64748B;  /* 4.55:1 — inputs, toggles, WCAG 1.4.11 */
+
+  /* ── Spacing: 4px base ── */
+  --space-1: .25rem;  --space-2: .5rem;   --space-3: .75rem;
+  --space-4: 1rem;    --space-5: 1.5rem;  --space-6: 2rem;
+  --space-7: 3rem;    --space-8: 4rem;    --space-9: 6rem;    --space-10: 8rem;
+
+  /* ── Type ── */
+  --text-xs:  .8125rem;
+  --text-sm:  .875rem;
+  --text-base: 1rem;
+  --text-lg:  clamp(1.0625rem, .35vw + 1rem, 1.1875rem);
+  --text-xl:  clamp(1.25rem, .6vw + 1.1rem, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.1vw + 1.25rem, 2rem);
+  --text-3xl: clamp(1.875rem, 2vw + 1.4rem, 2.75rem);
+  --text-4xl: clamp(2.25rem, 3.2vw + 1.5rem, 3.75rem);
+  --text-5xl: clamp(2.75rem, 4.5vw + 1.6rem, 4.5rem);
+  --leading-tight: 1.15; --leading-snug: 1.35; --leading-normal: 1.6;
+  --tracking-tight: -.02em; --tracking-wide: .04em;
+
+  /* ── Radii ── */
+  --r-xs: 6px; --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-full: 999px;
+
+  /* ── Layout ── */
+  --container: 1200px;
+  --container-narrow: 720px;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --header-h: 68px;
+
+  /* ── Elevation: soft, never heavy ── */
+  --shadow-1: 0 1px 2px rgb(15 23 42 / .05);
+  --shadow-2: 0 2px 8px rgb(15 23 42 / .06), 0 1px 2px rgb(15 23 42 / .04);
+  --shadow-3: 0 12px 32px rgb(15 23 42 / .10), 0 2px 6px rgb(15 23 42 / .05);
+
+  /* ── Motion ── */
+  --dur-micro: 120ms; --dur-base: 220ms; --dur-enter: 420ms; --dur-slow: 640ms;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-in-out: cubic-bezier(.4, 0, .2, 1);
+
+  /* ── Z ── */
+  --z-base: 0; --z-sticky: 100; --z-drawer: 200; --z-modal: 300; --z-toast: 400;
+}
+
+/* Dark theme. Note --ink-3 lifts to #94A3B8: the light-mode tertiary (#64748B)
+   measures only 3.75:1 on #0F172A and would fail. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0F172A; --surface: #1E293B; --surface-sunken: #172033;
+  --surface-inverse: #F8FAFC;
+  --ink: #F8FAFC; --ink-2: #CBD5E1; --ink-3: #94A3B8;
+  --ink-on-inverse: #0F172A; --ink-2-on-inverse: #475569;
+  --accent-text: #FBBF24;
+  --success: #4ADE80; --danger: #F87171; --warn: #FBBF24;
+  --border: #1E293B; --border-strong: #334155; --border-interactive: #94A3B8;
+  --shadow-1: none;
+  --shadow-2: 0 2px 8px rgb(0 0 0 / .4);
+  --shadow-3: 0 12px 32px rgb(0 0 0 / .5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0F172A; --surface: #1E293B; --surface-sunken: #172033;
+    --surface-inverse: #F8FAFC;
+    --ink: #F8FAFC; --ink-2: #CBD5E1; --ink-3: #94A3B8;
+    --ink-on-inverse: #0F172A; --ink-2-on-inverse: #475569;
+    --accent-text: #FBBF24;
+    --success: #4ADE80; --danger: #F87171; --warn: #FBBF24;
+    --border: #1E293B; --border-strong: #334155; --border-interactive: #94A3B8;
+    --shadow-1: none;
+    --shadow-2: 0 2px 8px rgb(0 0 0 / .4);
+    --shadow-3: 0 12px 32px rgb(0 0 0 / .5);
+  }
+}

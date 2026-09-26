@@ -1,0 +1,8 @@
+.wrap { padding: var(--space-8) 0 var(--space-9); }
+.inner { max-width: var(--container-narrow); margin-inline: auto; }
+.title { font-size: var(--text-4xl); font-weight: 660; }
+.updated { margin-top: var(--space-3); color: var(--ink-3); font-size: var(--text-sm); }
+.intro { margin-top: var(--space-5); color: var(--ink-2); font-size: var(--text-lg); }
+.section { margin-top: var(--space-7); }
+.heading { font-size: var(--text-xl); font-weight: 620; }
+.body { margin-top: var(--space-3); display: grid; gap: var(--space-3); color: var(--ink-2); }

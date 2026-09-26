@@ -154,6 +154,16 @@ async function fulfil(admin: Admin, session: Stripe.Checkout.Session) {
       .eq('id', order.user_id);
   }
 
+  // Grant the Discord subscriber role, if they have linked an account. Fire and
+  // forget: Discord being slow or down must never make Stripe retry a
+  // fulfilment that has already succeeded.
+  void fetch(`${serverEnv().appInternalUrl}/internal/discord/sync-role`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-internal-key': serverEnv().internalApiSecret },
+    body: JSON.stringify({ userId: order.user_id }),
+    signal: AbortSignal.timeout(5000),
+  }).catch(() => {});
+
   // Queued, not sent inline: a slow SMTP server must never delay the webhook
   // response and cause Stripe to retry a fulfilment that already succeeded.
   await admin.from('email_outbox').insert({

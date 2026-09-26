@@ -7,35 +7,11 @@
  * a row and the public page reflects it on the next revalidate.
  */
 import { createSupabaseServerClient } from './supabase/server';
+import type { PlanWithDiscount } from './pricing-types';
 
-export interface Plan {
-  id: string;
-  code: string;
-  name: string;
-  days: number;
-  priceCents: number;
-  compareAtCents: number | null;
-  currency: string;
-  description: string | null;
-  badge: string | null;
-  isDefault: boolean;
-}
-
-export interface PlanWithDiscount extends Plan {
-  /** After any automatic (codeless) discount currently running. */
-  finalCents: number;
-  discountCents: number;
-  perDayCents: number;
-}
-
-export const formatPrice = (cents: number, currency = 'usd'): string =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency.toUpperCase(),
-    // Whole dollars read cleaner on a pricing page; cents only when they exist.
-    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
-    maximumFractionDigits: 2,
-  }).format(cents / 100);
+// Re-exported so server components can keep importing from one place.
+export { formatPrice } from './pricing-types';
+export type { Plan, PlanWithDiscount } from './pricing-types';
 
 /**
  * Active plans with automatic discounts applied.

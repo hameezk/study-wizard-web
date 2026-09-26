@@ -27,9 +27,37 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  try {
+    return await createCheckout(request);
+  } catch (err) {
+    // Never a blank 500 on a payment route. Stripe can refuse for a dozen reasons
+    // — a revoked key, a restricted key missing a permission, an account not yet
+    // activated — and the difference between a shaped message and an empty body is
+    // whether anyone can tell what to do about it.
+    const detail = err instanceof Error ? err.message : String(err);
+    // Logged server-side in full; the browser gets the safe half.
+    console.error('[checkout] failed:', detail);
+
+    const isStripeAuth = /api key|authentication|401/i.test(detail);
+    return NextResponse.json(
+      {
+        error: isStripeAuth
+          ? 'Payments are not set up correctly — check STRIPE_SECRET_KEY.'
+          : 'Could not start checkout. Please try again.',
+        code: isStripeAuth ? 'stripe_not_configured' : 'checkout_failed',
+      },
+      { status: isStripeAuth ? 503 : 500 },
+    );
+  }
+}
+
+async function createCheckout(request: NextRequest) {
   if (!stripeConfigured()) {
     return NextResponse.json(
-      { error: 'Payments are not configured yet.' },
+      {
+        error: 'Payments are not configured yet. Add STRIPE_SECRET_KEY to .env and rebuild.',
+        code: 'stripe_not_configured',
+      },
       { status: 503 },
     );
   }

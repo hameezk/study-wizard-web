@@ -99,6 +99,10 @@ export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed, justS
         return;
       }
       if (!res.ok || !data.url) {
+        // Surface the server's message rather than a generic one. When Stripe is
+        // not configured — which is the normal state of a fresh local setup — the
+        // message says exactly that, so the page explains itself instead of
+        // looking broken.
         setMsg({ ok: false, text: data.error ?? 'Could not start checkout.' });
         setCheckingOut(false);
         return;

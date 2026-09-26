@@ -14,7 +14,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "guard:secrets": "node scripts/guard-secrets.mjs",
-    "guard:copy": "node scripts/guard-copy.mjs"
+    "guard:copy": "node scripts/guard-copy.mjs",
+    "webhook:paid": "node --env-file=.env scripts/simulate-webhook.mjs paid",
+    "webhook:refund": "node --env-file=.env scripts/simulate-webhook.mjs refund"
   },
   "dependencies": {
     "next": "^16.0.0",

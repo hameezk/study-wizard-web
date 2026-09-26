@@ -25,13 +25,23 @@
  */
 import { NextResponse, type NextRequest } from 'next/server';
 import type Stripe from 'stripe';
-import { stripe, stripeConfigured } from '@/lib/stripe';
+import { stripe, stripeWebhookConfigured } from '@/lib/stripe';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { serverEnv } from '@/lib/env';
 
 export async function POST(request: NextRequest) {
-  if (!stripeConfigured()) {
-    return NextResponse.json({ error: 'not configured' }, { status: 503 });
+  // The WEBHOOK secret, not the API key.
+  //
+  // This route never calls the Stripe API: it verifies a signature and writes to
+  // the database. Gating it on STRIPE_SECRET_KEY was both wrong in principle and
+  // wrong in practice — it made local fulfilment impossible, because the API key
+  // comes from the dashboard while the webhook secret comes from `stripe listen`,
+  // and you routinely have one without the other.
+  if (!stripeWebhookConfigured()) {
+    return NextResponse.json(
+      { error: 'webhook not configured', code: 'no_webhook_secret' },
+      { status: 503 },
+    );
   }
 
   const { stripeWebhookSecret } = serverEnv();

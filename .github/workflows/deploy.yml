@@ -1,0 +1,92 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Never let two deploys interleave on the same host.
+  group: deploy-web
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+      # Ship only what runs. devDependencies are ~80% of node_modules and the
+      # shared host has little disk and less memory.
+      - name: Package a release
+        run: |
+          RELEASE="release-$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA::7}"
+          echo "RELEASE=$RELEASE" >> "$GITHUB_ENV"
+          # Next's standalone output already bundles the server and its deps.
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public 2>/dev/null || true
+          tar -czf "$RELEASE.tar.gz" -C .next/standalone .
+
+      - name: Upload
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          source: ${{ env.RELEASE }}.tar.gz
+          target: ${{ secrets.DEPLOY_PATH }}/releases
+
+      # Symlink swap, healthcheck, auto-rollback. Modelled on the best-built
+      # artifact in the reference workspace, because a deploy that cannot roll
+      # itself back turns a bad build into an outage.
+      - name: Activate, verify, roll back on failure
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            set -euo pipefail
+            BASE="${{ secrets.DEPLOY_PATH }}"
+            REL="${{ env.RELEASE }}"
+            HEALTH="${{ secrets.HEALTHCHECK_URL }}"
+
+            cd "$BASE/releases"
+            mkdir -p "$REL"
+            tar -xzf "$REL.tar.gz" -C "$REL"
+            rm -f "$REL.tar.gz"
+
+            PREVIOUS="$(readlink "$BASE/current" || true)"
+
+            ln -sfn "$BASE/releases/$REL" "$BASE/current"
+            cp "$BASE/shared/.env" "$BASE/current/.env"
+
+            cd "$BASE"
+            node "$BASE/current/server.js" >/dev/null 2>&1 &
+            sleep 6
+
+            if curl -fsS --max-time 10 "$HEALTH" >/dev/null; then
+              echo "healthy: $REL"
+            else
+              echo "UNHEALTHY — rolling back to ${PREVIOUS:-none}"
+              if [ -n "${PREVIOUS:-}" ]; then
+                ln -sfn "$PREVIOUS" "$BASE/current"
+                node "$BASE/current/server.js" >/dev/null 2>&1 &
+              fi
+              exit 1
+            fi
+
+            # Keep the last five, so a rollback target always exists.
+            ls -1dt "$BASE/releases"/release-* 2>/dev/null | tail -n +6 | xargs -r rm -rf

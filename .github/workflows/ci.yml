@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Must match .nvmrc and the host. Hostinger supports 18/20/22/24;
+          # building on anything newer risks shipping syntax it cannot run.
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Blocks the build if any secret would be inlined into the browser
+      # bundle. Anything in a NEXT_PUBLIC_ variable is public forever.
+      - run: npm run guard:secrets
+
+      - run: npm run typecheck
+
+      - run: npm run lint --if-present
+
+      - run: npm test --if-present
+
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.PUBLIC_APP_URL }}

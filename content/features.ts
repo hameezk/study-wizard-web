@@ -43,7 +43,11 @@ export const HEADLINE_FEATURES: Feature[] = [
   },
 ] as const;
 
-export const COMPARISON_ROWS = [
+/** Tri-state: supported, partially supported, or not. */
+export type Support = boolean | 'partial';
+export interface ComparisonRow { label: string; us: Support; them: Support }
+
+export const COMPARISON_ROWS: ComparisonRow[] = [
   { label: 'Works with EdgeEX and classic Edgenuity', us: true, them: 'partial' },
   { label: 'Assessments, assignments and vocabulary', us: true, them: true },
   { label: 'Written and free-response questions', us: true, them: 'partial' },
@@ -55,12 +59,12 @@ export const COMPARISON_ROWS = [
   { label: 'Scheduled maintenance announced in advance', us: true, them: false },
   { label: 'Support in the dashboard and on Discord', us: true, them: 'partial' },
   { label: 'Pay only for the days you need', us: true, them: false },
-] as const;
+];
 
 export const HOW_IT_WORKS_STEPS = [
   {
     title: 'Create your account',
-    body: 'Sign up with email, Google or GitHub. Email signups confirm their address first.',
+    body: 'Sign up with email, Google or Discord. Email signups confirm their address first.',
   },
   {
     title: 'Choose how long you need',

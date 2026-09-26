@@ -3,6 +3,7 @@ import { ButtonLink } from '@/components/button';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { publicEnv } from '@/lib/env';
 import { formatPrice } from '@/lib/pricing';
+import { FulfilmentWatch } from './fulfilment-watch';
 import styles from '../../buy/buy.module.css';
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export default async function SuccessPage(props: {
   const { data: order } = orderId
     ? await supabase
         .from('orders')
-        .select('id, plan_name, days_granted, total_cents, currency, status')
+        .select('id, plan_code, plan_name, days_granted, total_cents, currency, status')
         .eq('id', orderId)
         .single()
     : { data: null };
@@ -43,6 +44,17 @@ export default async function SuccessPage(props: {
               ? 'Your access is active. Head to your dashboard to install the extension and get going.'
               : 'Thanks — we are finishing your order. Your access will be active in a moment.'}
           </p>
+
+          {order && (
+            <FulfilmentWatch
+              orderId={order.id as string}
+              settled={settled}
+              totalCents={order.total_cents as number}
+              currency={(order.currency as string) ?? 'usd'}
+              days={order.days_granted as number}
+              plan={(order.plan_code as string) ?? ''}
+            />
+          )}
 
           {order && (
             <div style={{ marginTop: 'var(--space-5)' }}>

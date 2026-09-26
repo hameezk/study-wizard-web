@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import type { PlanWithDiscount } from '@/lib/pricing-types';
 import { formatPrice } from '@/lib/pricing-types';
+import { track, toMajorUnits } from '@/lib/analytics';
 import styles from './buy.module.css';
 
 interface Props {
@@ -10,9 +11,11 @@ interface Props {
   initialPlan?: string;
   signedIn: boolean;
   emailConfirmed: boolean;
+  /** Arrived straight from confirming an address or an OAuth round trip. */
+  justSignedUp?: boolean;
 }
 
-export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed }: Props) {
+export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed, justSignedUp }: Props) {
   const initial =
     plans.find((p) => p.code === initialPlan) ?? plans.find((p) => p.isDefault) ?? plans[0];
 
@@ -22,6 +25,13 @@ export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed }: Pro
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const [checkingOut, setCheckingOut] = useState(false);
+
+  // Funnel entry. Runs once per mount, not on every re-selection.
+  useEffect(() => {
+    if (justSignedUp) track('sign_up', { method: 'redirect' });
+    track('view_pricing', { plan: initial?.code });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!selected) return <p>No plans are available right now.</p>;
 
@@ -39,6 +49,15 @@ export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed }: Pro
         body: JSON.stringify({ code: code.trim(), plan: selected!.code }),
       });
       const data = await res.json();
+      // Rejections are tracked too — a high rejection rate usually means a
+      // campaign is advertising a code that does not apply to the plan people
+      // are actually on, which is invisible if only successes are recorded.
+      track('apply_coupon', {
+        plan: selected!.code,
+        coupon: code.trim(),
+        coupon_valid: Boolean(data.valid),
+      });
+
       if (data.valid) {
         setCouponCents(data.discount_cents ?? 0);
         setMsg({ ok: true, text: `Code applied — ${formatPrice(data.discount_cents ?? 0)} off.` });
@@ -52,6 +71,17 @@ export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed }: Pro
   async function checkout() {
     setCheckingOut(true);
     setMsg(null);
+
+    // Before the request, not after: the response is a redirect to Stripe, and
+    // anything pushed after `window.location.href` is assigned may never run.
+    track('begin_checkout', {
+      plan: selected!.code,
+      value: toMajorUnits(total),
+      currency: selected!.currency,
+      days: selected!.days,
+      coupon: code.trim() || undefined,
+    });
+
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -91,7 +121,15 @@ export function PlanPicker({ plans, initialPlan, signedIn, emailConfirmed }: Pro
             <button
               key={p.id}
               type="button"
-              onClick={() => { setSelected(p); setCouponCents(0); setMsg(null); }}
+              onClick={() => {
+                setSelected(p); setCouponCents(0); setMsg(null);
+                track('select_plan', {
+                  plan: p.code,
+                  value: toMajorUnits(p.finalCents),
+                  currency: p.currency,
+                  days: p.days,
+                });
+              }}
               aria-pressed={isSel}
               className={`${styles.plan} ${isSel ? styles.planSelected : ''}`}
             >

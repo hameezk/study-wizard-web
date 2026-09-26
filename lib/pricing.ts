@@ -6,7 +6,7 @@
  * build-time parity script plus a deploy to change a number. Here an admin edits
  * a row and the public page reflects it on the next revalidate.
  */
-import { createSupabaseServerClient } from './supabase/server';
+import { createSupabasePublicClient } from './supabase/server';
 import type { PlanWithDiscount } from './pricing-types';
 
 // Re-exported so server components can keep importing from one place.
@@ -21,7 +21,10 @@ export type { Plan, PlanWithDiscount } from './pricing-types';
  * has no read policy and codes must not be enumerable.
  */
 export async function getPlans(): Promise<PlanWithDiscount[]> {
-  const supabase = await createSupabaseServerClient();
+  // Deliberately the cookie-free client: the price list is the same for every
+  // visitor, and touching cookies here would make every page that shows a price
+  // render per request.
+  const supabase = createSupabasePublicClient();
 
   const [{ data: plans }, { data: discounts }] = await Promise.all([
     supabase

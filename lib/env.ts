@@ -16,6 +16,8 @@ export const publicEnv = {
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '',
   chromeStoreUrl: process.env.NEXT_PUBLIC_CHROME_WEB_STORE_URL ?? '',
   discordInviteUrl: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL ?? '',
+  /** GTM container. Empty means no analytics script loads at all. */
+  gtmId: process.env.NEXT_PUBLIC_GTM_ID ?? '',
 } as const;
 
 export function serverEnv() {

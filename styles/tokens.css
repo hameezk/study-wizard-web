@@ -21,7 +21,11 @@
   /* ── Text ── */
   --ink:              #0F172A;  /* 17.06:1 on --bg  */
   --ink-2:            #475569;  /*  7.24:1 secondary */
-  --ink-3:            #64748B;  /*  4.55:1 tertiary — body size only, never small */
+  /* 4.55:1 on --bg, and that is the ONLY surface it passes on. On
+     --surface-sunken (#F1F5F9) the same colour measures 4.34:1 and fails AA —
+     found by the axe run on the comparison table's zebra striping, not by
+     reading this file. Use --ink-2 on any surface darker than --bg. */
+  --ink-3:            #64748B;  /*  4.55:1 on --bg only — body size, never small */
   --ink-on-inverse:   #F8FAFC;  /* 17.06:1 on --surface-inverse */
   --ink-2-on-inverse: #94A3B8;  /*  6.96:1 — NOT #64748B, which is 3.75:1 and fails */
 

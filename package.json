@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22 <25" },
+  "engines": {
+    "node": ">=22 <25"
+  },
   "scripts": {
     "dev": "next dev -p 3001",
-    "build": "npm run guard:secrets && next build",
+    "build": "npm run guard:secrets && npm run guard:copy && next build",
     "start": "next start -p 3001",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "guard:secrets": "node scripts/guard-secrets.mjs"
+    "guard:secrets": "node scripts/guard-secrets.mjs",
+    "guard:copy": "node scripts/guard-copy.mjs"
   },
   "dependencies": {
     "next": "^16.0.0",

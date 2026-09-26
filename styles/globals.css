@@ -21,8 +21,28 @@ h1, h2, h3, h4 { margin: 0; line-height: var(--leading-tight); letter-spacing: v
 p { margin: 0; }
 ul, ol { margin: 0; padding: 0; }
 
-a { color: var(--accent-text); text-decoration: none; }
-a:hover { text-decoration: underline; }
+/**
+ * Links are underlined by default, not on hover.
+ *
+ * WCAG 1.4.1 needs a link inside a block of text to be distinguishable by
+ * something other than colour — or, failing that, for the link colour and the
+ * surrounding text colour to differ by 3:1. Measured, our amber-as-text
+ * (#B45309) against secondary body text (#475569) is 1.5:1, so colour alone was
+ * never going to carry it. The underline is the fix, and it is also simply the
+ * clearer convention.
+ *
+ * Navigation, buttons and card links opt out with `text-decoration: none`,
+ * which is correct: 1.4.1's requirement is about links embedded in prose, and
+ * those elements are distinguishable by position and shape.
+ */
+a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  /* Thin enough not to muddy the text, thick enough to survive at small sizes. */
+  text-decoration-thickness: from-font;
+}
+a:hover { text-decoration-thickness: 2px; }
 
 img, svg, video { display: block; max-width: 100%; height: auto; }
 

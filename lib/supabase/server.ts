@@ -57,6 +57,26 @@ export async function createSupabaseServerClient() {
 }
 
 /**
+ * Cookie-free public-read client.
+ *
+ * Exists for one reason: reading `cookies()` opts a route out of static
+ * rendering entirely, `revalidate` or not. The price list is identical for every
+ * visitor, so fetching it through the request-scoped client made the home page
+ * and the pricing page render per request and put a Supabase round trip on the
+ * critical path — measured at 608ms TTFB against a 600ms budget, on a machine
+ * with a local network to the database. Shared hosting would be worse.
+ *
+ * Same publishable key, so RLS applies exactly as it does for an anonymous
+ * visitor: this can read nothing the old path could not.
+ */
+export function createSupabasePublicClient() {
+  const { supabaseUrl, supabasePublishableKey } = serverEnv();
+  return createClient(supabaseUrl, supabasePublishableKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/**
  * Secret-key client. BYPASSES RLS.
  *
  * Used only by the Stripe webhook, which must write an access grant for a user

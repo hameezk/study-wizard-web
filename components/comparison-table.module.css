@@ -1,0 +1,118 @@
+/**
+ * Comparison table.
+ *
+ * A table is the right element here — it is genuinely tabular data, and a
+ * screen reader announces "Study Wizard column, Yes" only because the header
+ * cells are real `th` with `scope`.
+ *
+ * The narrow-width problem: eleven capability labels plus two value columns
+ * cannot fit 360px without either a horizontal scroll or a layout change.
+ * This uses scroll, because collapsing a comparison into stacked cards loses
+ * the side-by-side reading that is the entire point. The scroll container is
+ * focusable and labelled, which WCAG 2.1.1 requires of any region that can
+ * only be reached by scrolling.
+ */
+.scroller {
+  overflow-x: auto;
+  /* Momentum scrolling on iOS, and a visible edge so it is discoverable. */
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.scroller:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  /* Below this the labels wrap to four lines and the table becomes unreadable;
+     above it, it simply fills the container. */
+  min-width: 34rem;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table caption {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: var(--text-xs);
+  /* --text-xs is 13px, below the "body size only" limit on --ink-3. */
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: top;
+}
+
+.colLabel {
+  text-align: left;
+  font-weight: 600;
+}
+
+.colUs,
+.colThem {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.colUs {
+  /* Amber as a marker on the column that matters, never as text colour. */
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.rowLabel {
+  text-align: left;
+  font-weight: 400;
+  /* Wrap rather than truncate: a clipped capability label is worse than a
+     taller row. */
+  min-width: 16rem;
+}
+
+.body tr {
+  border-top: 1px solid var(--border);
+}
+
+.body tr:nth-child(even) {
+  background: var(--surface-sunken);
+}
+
+.us,
+.them {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.them {
+  /* --ink-2, not --ink-3: the zebra stripe below is --surface-sunken, where
+     --ink-3 measures 4.34:1 and fails AA. Measured, not assumed. */
+  color: var(--ink-2);
+}
+
+/* Yes/No/Partial are words, not colours or ticks. Colour alone would be
+   invisible to a colour-blind reader and silent to a screen reader; the dot is
+   decorative reinforcement only. */
+.mark::before {
+  content: '';
+  display: inline-block;
+  width: .5rem;
+  height: .5rem;
+  margin-right: .4rem;
+  border-radius: var(--r-full);
+  vertical-align: baseline;
+}
+
+.yes::before   { background: var(--success); }
+.partial::before { background: var(--warn); }
+.no::before    { background: var(--border-strong); }
+
+.footnote {
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+}

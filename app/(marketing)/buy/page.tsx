@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function BuyPage(props: {
-  searchParams: Promise<{ plan?: string; cancelled?: string }>;
+  searchParams: Promise<{ plan?: string; cancelled?: string; new?: string }>;
 }) {
-  const [{ plan, cancelled }, plans, supabase] = await Promise.all([
+  const [{ plan, cancelled, new: isNew }, plans, supabase] = await Promise.all([
     props.searchParams,
     getPlans(),
     createSupabaseServerClient(),
@@ -43,6 +43,7 @@ export default async function BuyPage(props: {
           initialPlan={plan}
           signedIn={Boolean(auth.user)}
           emailConfirmed={Boolean(auth.user?.email_confirmed_at)}
+          justSignedUp={isNew === '1'}
         />
       </div>
     </section>

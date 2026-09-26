@@ -52,8 +52,11 @@ export async function signupAction(
     email,
     password,
     options: {
+      // `new=1` lets the marketing group fire the sign_up funnel event. The
+      // auth group loads no analytics on purpose, so the event has to be
+      // reported from the page the user lands on.
       emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(
-        plan ? `/checkout?plan=${plan}` : '/checkout',
+        plan ? `/buy?plan=${plan}&new=1` : '/buy?new=1',
       )}`,
     },
   });
@@ -88,7 +91,7 @@ export async function oauthAction(formData: FormData): Promise<void> {
   const plan = formData.get('plan');
   const supabase = await createSupabaseServerClient();
   const origin = (await headers()).get('origin') ?? publicEnv.siteUrl;
-  const next = plan ? `/checkout?plan=${String(plan)}` : '/checkout';
+  const next = plan ? `/buy?plan=${String(plan)}&new=1` : '/buy?new=1';
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

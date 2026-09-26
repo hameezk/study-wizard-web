@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { ButtonLink } from '@/components/button';
-import { HEADLINE_FEATURES, HOW_IT_WORKS_STEPS, COMPARISON_ROWS } from '@/content/features';
+import { HEADLINE_FEATURES, HOW_IT_WORKS_STEPS } from '@/content/features';
+import { COMPETITORS } from '@/content/competitors';
+import { ComparisonTable } from '@/components/comparison-table';
 import { SITE, SUPPORTED_PLATFORMS } from '@/content/site';
 import { getPlans, formatPrice } from '@/lib/pricing';
 import styles from './home.module.css';
@@ -166,32 +169,14 @@ export default async function HomePage() {
             <p className={styles.sectionEyebrow}>Comparison</p>
             <h2 className={styles.sectionTitle}>How we differ</h2>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>
-            <thead>
-              <tr>
-                <th scope="col" style={{ textAlign: 'left', padding: '.75rem 0' }}>Capability</th>
-                <th scope="col" style={{ padding: '.75rem' }}>Study Wizard</th>
-                <th scope="col" style={{ padding: '.75rem', color: 'var(--ink-3)' }}>Typical alternative</th>
-              </tr>
-            </thead>
-            <tbody>
-              {COMPARISON_ROWS.map((r) => (
-                <tr key={r.label} style={{ borderTop: '1px solid var(--border)' }}>
-                  <th scope="row" style={{ textAlign: 'left', fontWeight: 400, padding: '.75rem 0' }}>
-                    {r.label}
-                  </th>
-                  {/* Text, not colour alone — a tick rendered only in green is
-                      invisible to a colour-blind reader and to a screen reader. */}
-                  <td style={{ textAlign: 'center', padding: '.75rem' }}>
-                    {r.us === true ? 'Yes' : r.us === 'partial' ? 'Partial' : 'No'}
-                  </td>
-                  <td style={{ textAlign: 'center', padding: '.75rem', color: 'var(--ink-3)' }}>
-                    {r.them === true ? 'Yes' : r.them === 'partial' ? 'Partial' : 'No'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ComparisonTable />
+          <nav className={styles.compareLinks} aria-label="Detailed comparisons">
+            {COMPETITORS.map((c) => (
+              <Link key={c.slug} href={`/compare/${c.slug}`} className={styles.compareLink}>
+                Study Wizard vs {c.name}
+              </Link>
+            ))}
+          </nav>
         </div>
       </section>
 

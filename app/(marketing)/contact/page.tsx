@@ -27,8 +27,15 @@ export default function ContactPage() {
               In your dashboard. Answers come straight away, and you can hand the
               conversation to a person at any point.
             </p>
+            {/* A standalone call to action, not a link inside prose, so it needs
+                a real target size — it measured 17px tall. */}
             <p className={styles.cardBody}>
-              <a href={`${publicEnv.appUrl}/support`}>Open support</a>
+              <a
+                href={`${publicEnv.appUrl}/support`}
+                style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44 }}
+              >
+                Open support
+              </a>
             </p>
           </article>
 

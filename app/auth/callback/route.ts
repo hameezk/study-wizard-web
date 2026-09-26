@@ -9,10 +9,19 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase/server';
 
-/** Only same-origin relative paths, so `next` cannot become an open redirect. */
+/**
+ * Only same-origin relative paths, so `next` cannot become an open redirect.
+ *
+ * The fallback is /buy — the plan picker — not /checkout. There is no /checkout
+ * page; that prefix exists only to protect /checkout/success, and sending a
+ * freshly confirmed user there landed them on a 404 at the exact moment they
+ * were most likely to give up.
+ */
+const DEFAULT_NEXT = '/buy?new=1';
+
 function safeNext(raw: string | null): string {
-  if (!raw) return '/checkout';
-  if (!raw.startsWith('/') || raw.startsWith('//')) return '/checkout';
+  if (!raw) return DEFAULT_NEXT;
+  if (!raw.startsWith('/') || raw.startsWith('//')) return DEFAULT_NEXT;
   return raw;
 }
 

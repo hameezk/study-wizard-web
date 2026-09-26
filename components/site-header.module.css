@@ -6,16 +6,116 @@
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
-.inner { display: flex; align-items: center; gap: var(--space-6); width: 100%; }
-.brand { color: var(--ink); margin-right: auto; }
+.inner {
+  display: flex; align-items: center; width: 100%;
+  /* Shrinks with the viewport. A fixed 2rem gap is 12% of a 320px screen, which
+     is what pushed the header past the viewport edge at the WCAG 1.4.10 floor. */
+  gap: clamp(var(--space-2), 3vw, var(--space-6));
+  /* The brand mark is allowed to shrink; without this the flex item keeps its
+     min-content width and the whole row overflows instead. */
+  min-width: 0;
+}
+.brand { color: var(--ink); margin-right: auto; min-width: 0; }
 .brand:hover { text-decoration: none; }
 .nav { display: none; gap: var(--space-5); }
 .link { color: var(--ink-2); font-size: var(--text-sm); font-weight: 480; }
 .link:hover { color: var(--ink); text-decoration: none; }
-.actions { display: flex; align-items: center; gap: var(--space-3); }
+.actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
 .loginLink { display: none; }
+
+/* ── Narrow-width disclosure menu ─────────────────────────────────────────
+   `position: static` on the details keeps the panel positioned against the
+   header rather than the button, so it spans the full width. */
+.disclosure { position: static; }
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* 44px, the minimum target size in WCAG 2.5.5. At 360px this sits beside the
+     Get Started button and both still clear it. */
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-interactive);
+  border-radius: var(--r-sm);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  cursor: pointer;
+  /* Removes the disclosure triangle in every engine: WebKit needs the
+     -webkit- pseudo-element, the others honour `list-style`. */
+  list-style: none;
+}
+.menuButton::-webkit-details-marker { display: none; }
+
+.menuButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.menuBars {
+  position: relative;
+  width: 1rem;
+  height: 2px;
+  background: currentColor;
+  /* The two other bars, so the icon needs no SVG and no extra elements. */
+  box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor;
+}
+
+.menuLabel { font-weight: 500; }
+
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--header-h);
+  padding: var(--space-4) var(--gutter) var(--space-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-3);
+  /* At 200% zoom the viewport is short; the panel must scroll rather than push
+     content off-screen with no way to reach it (WCAG 1.4.10). */
+  max-height: calc(100dvh - var(--header-h));
+  overflow-y: auto;
+}
+
+.panelList { list-style: none; margin: 0; padding: 0; }
+
+.panelLink,
+.panelLogin {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: var(--text-base);
+  border-bottom: 1px solid var(--border);
+}
+
+.panelLogin {
+  margin-top: var(--space-3);
+  border-bottom: 0;
+  font-weight: 600;
+  color: var(--accent-text); /* amber as text needs the 4.80:1 token */
+}
+
+/* Below 380px the word "Menu" is what tips the row over the edge, so the icon
+   carries the meaning alone and the accessible name comes from aria-label.
+   Measured, not guessed: at 320px the row overflowed by exactly 21px. */
+@media (max-width: 379px) {
+  .menuLabel {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap; border: 0;
+  }
+  .menuButton { padding: 0 var(--space-2); }
+}
 
 @media (min-width: 900px) {
   .nav { display: flex; }
   .loginLink { display: inline-flex; }
+  .disclosure { display: none; }
 }
+
+/* Navigation, not prose: WCAG 1.4.1 asks for links in a block of text to be
+   distinguishable without colour. These are distinguishable by position. */
+.link, .brand, .menuButton, .panelLink, .panelLogin { text-decoration: none; }
+.link:hover, .brand:hover, .menuButton:hover, .panelLink:hover, .panelLogin:hover { text-decoration: underline; }

@@ -29,6 +29,7 @@
 .faqA { margin-top: var(--space-3); color: var(--ink-2); }
 .priceGrid { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
 .priceCard {
+  min-width: 0;
   background: var(--surface); border: 1px solid var(--border-strong);
   border-radius: var(--r-lg); padding: var(--space-6); text-align: left;
 }
@@ -47,7 +48,11 @@
 .quoteBy { margin-top: var(--space-3); color: var(--ink-3); font-size: var(--text-sm); }
 @media (min-width: 720px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
-  .priceGrid { grid-template-columns: repeat(4, 1fr); }
   .steps { grid-template-columns: repeat(2, 1fr); }
+  /* auto-fit with a floor rather than a fixed four columns: four equal columns
+     at 768px gave each card about 160px of content box, and the price itself is
+     set at --text-3xl, so every card overflowed. This yields two columns on a
+     tablet and four from ~1000px, with no second breakpoint to keep in sync. */
+  .priceGrid { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
 }
 @media (min-width: 1000px) { .grid { grid-template-columns: repeat(3, 1fr); } }

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { publicEnv } from '@/lib/env';
+import { COMPETITORS } from '@/content/competitors';
 
 /** Indexable pages only — the same set robots.ts allows. */
 const PAGES: Array<{ path: string; priority: number; changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' }> = [
@@ -20,7 +21,17 @@ const PAGES: Array<{ path: string; priority: number; changeFrequency: 'daily' | 
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  return PAGES.map((p) => ({
+  // Derived from the content module rather than listed again here, so adding a
+  // competitor page cannot leave it out of the sitemap.
+  const pages = [
+    ...PAGES,
+    ...COMPETITORS.map((c) => ({
+      path: `/compare/${c.slug}`,
+      priority: 0.6,
+      changeFrequency: 'monthly' as const,
+    })),
+  ];
+  return pages.map((p) => ({
     url: `${publicEnv.siteUrl}${p.path}`,
     lastModified: now,
     changeFrequency: p.changeFrequency,

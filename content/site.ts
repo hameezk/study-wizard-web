@@ -24,7 +24,14 @@ export const NAV_LINKS = [
   { href: '/faq', label: 'FAQ' },
 ] as const;
 
-export const FOOTER_SECTIONS = [
+export interface FooterLink {
+  href: string;
+  label: string;
+  /** Omitted for same-site pages; 'app' resolves against the dashboard host. */
+  on?: 'app';
+}
+
+export const FOOTER_SECTIONS: Array<{ title: string; links: FooterLink[] }> = [
   {
     title: 'Product',
     links: [
@@ -38,7 +45,10 @@ export const FOOTER_SECTIONS = [
     title: 'Support',
     links: [
       { href: '/faq', label: 'FAQ' },
-      { href: '/setup', label: 'Setup guide' },
+      // The setup guide is behind login on the dashboard, deliberately: it is
+      // where the blunt capability detail lives, so it is neither crawled nor
+      // part of a store listing. `app` means "resolve against NEXT_PUBLIC_APP_URL".
+      { href: '/setup', label: 'Setup guide', on: 'app' },
       { href: '/contact', label: 'Contact' },
     ],
   },
@@ -57,7 +67,7 @@ export const FOOTER_SECTIONS = [
       { href: '/refund-policy', label: 'Refund policy' },
     ],
   },
-] as const;
+];
 
 export const SUPPORTED_PLATFORMS = ['Edgenuity', 'EdgeEX', 'Imagine Edgenuity'] as const;
 

@@ -73,3 +73,25 @@
   .bento { grid-template-columns: repeat(3, 1fr); }
   .steps { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* Links out to the per-competitor pages. Without these the compare routes have
+   no internal links, which is both an SEO problem and a dead end for a reader
+   who wants the detail. */
+.compareLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.compareLink {
+  /* Standalone navigation links, not links inside a sentence, so the inline
+     exception to WCAG 2.5.8 does not apply and a 20px-high target is a failure. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent-text); /* 4.80:1 — amber AS text needs the darker token */
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

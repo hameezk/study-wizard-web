@@ -3,6 +3,11 @@
 .title { font-size: var(--text-4xl); font-weight: 660; }
 .lede { margin-top: var(--space-4); color: var(--ink-2); font-size: var(--text-lg); }
 .grid { display: grid; gap: var(--space-6); align-items: start; }
+/* Grid and flex items refuse to shrink below min-content unless told to, and a
+   `fieldset` additionally defaults to `min-inline-size: min-content`. Together
+   those two rules made this column 61px wider than a 360px phone. */
+.plans, .panel { min-width: 0; }
+.plans { min-inline-size: 0; }
 .plans { display: grid; gap: var(--space-4); }
 .plan {
   display: grid; gap: var(--space-2);
@@ -15,7 +20,14 @@
 .plan:hover { border-color: var(--border-interactive); }
 /* Selection is conveyed by border AND a text marker, never colour alone. */
 .planSelected { border-color: var(--accent); border-width: 2px; padding: calc(var(--space-5) - 1px); }
-.planRow { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+.planRow {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-3);
+  /* Wraps rather than overflowing when the name and the price cannot share a
+     line — a stacked name and price is fine, a clipped price is not. */
+  flex-wrap: wrap;
+}
+.planRow > * { min-width: 0; }
 .planName { font-weight: 600; font-size: var(--text-lg); }
 .planPrice { font-size: var(--text-xl); font-weight: 640; }
 .planMeta { color: var(--ink-3); font-size: var(--text-sm); }
@@ -28,6 +40,11 @@
 .was { color: var(--ink-3); text-decoration: line-through; font-size: var(--text-sm); margin-left: var(--space-2); }
 .panel {
   position: sticky; top: calc(var(--header-h) + var(--space-4));
+  /* At 200% zoom the viewport is short, and a sticky panel taller than the space
+     left below the header becomes unscrollable — its lower half, including the
+     Pay button, is simply unreachable. */
+  max-height: calc(100dvh - var(--header-h) - var(--space-6));
+  overflow-y: auto;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-lg); padding: var(--space-6); box-shadow: var(--shadow-2);
 }
@@ -45,3 +62,9 @@
 .msgBad { color: var(--danger); }
 .note { margin-top: var(--space-4); font-size: var(--text-xs); color: var(--ink-3); }
 @media (min-width: 900px) { .grid { grid-template-columns: 1.3fr .7fr; } }
+
+/* Sticky only where there is room beside the plans. In the single-column
+   layout it would pin the summary over the list the user is choosing from. */
+@media (max-width: 899px) {
+  .panel { position: static; max-height: none; }
+}
